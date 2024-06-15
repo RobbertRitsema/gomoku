@@ -31,7 +31,7 @@ class basePlayer:
         3) the available moves you can play (this is a special service we provide ;-) )
         4) the maximum time until the agent is required to make a move in milliseconds [diverging from this will lead to disqualification].
         """
-        moves = GmUtils.getValidMoves(state[0])
+        moves = GmUtils.getValidMoves(state[0], state[1])
         return random.choice(moves)
 
     def id(self) -> str:
@@ -130,9 +130,8 @@ class GmUtils:
                 break
             xlim = xlim + 1
             ylim = ylim + 1
-        if (
-            number_diag >= GmGameRules.winningSeries
-        ):  # TODO: use == for gomoku (and >= for 5 in a row)
+        # TODO: use == for gomoku (and >= for 5 in a row)
+        if number_diag >= GmGameRules.winningSeries:
             return True
         # check lower right - upper left
         number_diag = 1
@@ -154,9 +153,8 @@ class GmUtils:
                 break
             xlim = xlim - 1
             ylim = ylim + 1
-        if (
-            number_diag >= GmGameRules.winningSeries
-        ):  # TODO: use == for gomoku (and >= for 5 in a row)
+        # TODO: use == for gomoku (and >= for 5 in a row)
+        if number_diag >= GmGameRules.winningSeries:
             return True
         return False
 

@@ -12,7 +12,7 @@ from GmUtils import GmUtils
 
 
 # The Gomoku Game class (visualisation of the gameboard, allowing two agents to play against eachother)
-class GmGame():
+class GmGame:
     DIFFICULTY = 1  # how many moves to look ahead. (>2 is usually too much)
 
     SPACESIZE = 35  # size of the tokens and individual board spaces in pixels
@@ -36,12 +36,12 @@ class GmGame():
     WHITE = 1
     EMPTY = 0
     MARKER = 3  # cannot be on board, but can be displayed
-    HUMAN = 'human'  # WHITE player
-    HUMAN2 = 'human2'  # BLACK player
-    COMPUTER = 'computer'  # BLACK player
+    HUMAN = "human"  # WHITE player
+    HUMAN2 = "human2"  # BLACK player
+    COMPUTER = "computer"  # BLACK player
 
-    BlackPlayer = ''
-    WhitePlayer = ''
+    BlackPlayer = ""
+    WhitePlayer = ""
 
     GameType_HumanVsCpu = "HumanVsCpu"
     GameType_HumanVsHuman = "HumanVsHuman"
@@ -52,8 +52,12 @@ class GmGame():
     # player1 will be set to black.
     # player2 wil be set to white
     def start(player1, player2, max_time_to_move, showIntermediateMoves=True):
-        GmGame.XMARGIN = int((GmGame.WINDOWWIDTH - GmGameRules.BOARDWIDTH * GmGame.SPACESIZE) / 2)
-        GmGame.YMARGIN = int((GmGame.WINDOWHEIGHT - GmGameRules.BOARDHEIGHT * GmGame.SPACESIZE) / 2)
+        GmGame.XMARGIN = int(
+            (GmGame.WINDOWWIDTH - GmGameRules.BOARDWIDTH * GmGame.SPACESIZE) / 2
+        )
+        GmGame.YMARGIN = int(
+            (GmGame.WINDOWHEIGHT - GmGameRules.BOARDHEIGHT * GmGame.SPACESIZE) / 2
+        )
 
         global FPSCLOCK, DISPLAYSURF, WHITETOKENIMG
         global BLACKTOKENIMG, BOARDIMG, ARROWIMG, ARROWRECT, HUMANWINNERIMG
@@ -62,24 +66,35 @@ class GmGame():
         pygame.init()
         GmGame.FPSCLOCK = pygame.time.Clock()
         DISPLAYSURF = pygame.display.set_mode((GmGame.WINDOWWIDTH, GmGame.WINDOWHEIGHT))
-        pygame.display.set_caption('Gomoku')
+        pygame.display.set_caption("Gomoku")
 
-        WHITETOKENIMG = pygame.image.load('assets/5row_white_smaller.png')
-        WHITETOKENIMG = pygame.transform.smoothscale(WHITETOKENIMG, (GmGame.SPACESIZE, GmGame.SPACESIZE))
-        BLACKTOKENIMG = pygame.image.load('assets/5row_black_smaller.png')
-        BLACKTOKENIMG = pygame.transform.smoothscale(BLACKTOKENIMG, (GmGame.SPACESIZE, GmGame.SPACESIZE))
-        MARKERIMG = pygame.image.load('assets/marker.png')
-        MARKERIMG = pygame.transform.smoothscale(MARKERIMG, (GmGame.SPACESIZE, GmGame.SPACESIZE))
-        BOARDIMG = pygame.image.load('assets/gomoku_board.png')
-        BOARDIMG = pygame.transform.smoothscale(BOARDIMG, (GmGame.SPACESIZE, GmGame.SPACESIZE))
+        WHITETOKENIMG = pygame.image.load("assets/5row_white_smaller.png")
+        WHITETOKENIMG = pygame.transform.smoothscale(
+            WHITETOKENIMG, (GmGame.SPACESIZE, GmGame.SPACESIZE)
+        )
+        BLACKTOKENIMG = pygame.image.load("assets/5row_black_smaller.png")
+        BLACKTOKENIMG = pygame.transform.smoothscale(
+            BLACKTOKENIMG, (GmGame.SPACESIZE, GmGame.SPACESIZE)
+        )
+        MARKERIMG = pygame.image.load("assets/marker.png")
+        MARKERIMG = pygame.transform.smoothscale(
+            MARKERIMG, (GmGame.SPACESIZE, GmGame.SPACESIZE)
+        )
+        BOARDIMG = pygame.image.load("assets/gomoku_board.png")
+        BOARDIMG = pygame.transform.smoothscale(
+            BOARDIMG, (GmGame.SPACESIZE, GmGame.SPACESIZE)
+        )
 
-        HUMANWINNERIMG = pygame.image.load('assets/5row_blackwinner.png')
-        COMPUTERWINNERIMG = pygame.image.load('assets/5row_whitewinner.png')
+        HUMANWINNERIMG = pygame.image.load("assets/5row_blackwinner.png")
+        COMPUTERWINNERIMG = pygame.image.load("assets/5row_whitewinner.png")
         # make the winner impage small, such that we can cramp it in the topleft
-        HUMANWINNERIMG = pygame.transform.smoothscale(HUMANWINNERIMG, (5 * GmGame.SPACESIZE, 2 * GmGame.SPACESIZE))
-        COMPUTERWINNERIMG = pygame.transform.smoothscale(COMPUTERWINNERIMG,
-                                                         (5 * GmGame.SPACESIZE, 2 * GmGame.SPACESIZE))
-        TIEWINNERIMG = pygame.image.load('assets/5row_tie.png')
+        HUMANWINNERIMG = pygame.transform.smoothscale(
+            HUMANWINNERIMG, (5 * GmGame.SPACESIZE, 2 * GmGame.SPACESIZE)
+        )
+        COMPUTERWINNERIMG = pygame.transform.smoothscale(
+            COMPUTERWINNERIMG, (5 * GmGame.SPACESIZE, 2 * GmGame.SPACESIZE)
+        )
+        TIEWINNERIMG = pygame.image.load("assets/5row_tie.png")
         WINNERRECT = HUMANWINNERIMG.get_rect()
         # WINNERRECT.center = (int(WINDOWWIDTH / 2), int(WINDOWHEIGHT / 2))
         WINNERRECT.left = 0
@@ -87,11 +102,17 @@ class GmGame():
 
         while True:
             player1.new_game(
-                True)  # to avoid inconsistencies, I define player1 as black player and player 2 as white player.
+                True
+            )  # to avoid inconsistencies, I define player1 as black player and player 2 as white player.
             player2.new_game(False)
             GmGame.runGame(player1, player2, max_time_to_move, showIntermediateMoves)
 
-    def runGame(player1, player2, max_time_to_move, showIntermediateMoves, ):
+    def runGame(
+        player1,
+        player2,
+        max_time_to_move,
+        showIntermediateMoves,
+    ):
         last_move = ()  # was None, changed for compatibility with competition.py
         ply = 1
 
@@ -108,17 +129,22 @@ class GmGame():
             # I don't bother to fill valid_moves. My class bookkeeps that by itself.
             # make deepcopy to avoid ai's that erroneously modify the gamestate can manipulate the official board.
             gamestate = (copy.deepcopy(mainBoard), ply)
-            last_move = (column, row) = activePlayer.move(gamestate, last_move, max_time_to_move)
+            last_move = (column, row) = activePlayer.move(
+                gamestate, last_move, max_time_to_move
+            )
             ply += 1
 
             color = GmGame.getPlayerColor(activePlayer)
 
             if GmUtils.isValidMove(mainBoard, column, row):
                 GmUtils.addMoveToBoard(mainBoard, last_move, color)
-                if showIntermediateMoves: GmGame.drawBoardWithExtraTokens(mainBoard, column, row, GmGame.MARKER)
+                if showIntermediateMoves:
+                    GmGame.drawBoardWithExtraTokens(
+                        mainBoard, column, row, GmGame.MARKER
+                    )
 
             if GmUtils.isWinningMove(last_move, mainBoard):
-                if (activePlayer == player1):
+                if activePlayer == player1:
                     winnerImg = HUMANWINNERIMG
                 else:
                     winnerImg = COMPUTERWINNERIMG
@@ -126,8 +152,10 @@ class GmGame():
             elif GmGame.isBoardFull(mainBoard):
                 # A completely filled board means it's a tie.
                 winnerImg = TIEWINNERIMG
-                if showIntermediateMoves: GmGame.drawBoardWithExtraTokens(mainBoard, last_move[0], last_move[1],
-                                                                          GmGame.MARKER)
+                if showIntermediateMoves:
+                    GmGame.drawBoardWithExtraTokens(
+                        mainBoard, last_move[0], last_move[1], GmGame.MARKER
+                    )
                 break
             activePlayer = GmUtils.getNonActivePlayer(activePlayer, player1, player2)
 
@@ -137,13 +165,17 @@ class GmGame():
 
         while True:
             # Keep looping until player clicks the mouse or quits.
-            GmGame.drawBoardWithExtraTokens(mainBoard, last_move[0], last_move[1], GmGame.MARKER)
+            GmGame.drawBoardWithExtraTokens(
+                mainBoard, last_move[0], last_move[1], GmGame.MARKER
+            )
             DISPLAYSURF.blit(winnerImg, WINNERRECT)
             pygame.display.update()
             GmGame.FPSCLOCK.tick()
             time.sleep(0.1)
             for event in pygame.event.get():  # event handling loop
-                if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
+                if event.type == QUIT or (
+                    event.type == KEYUP and event.key == K_ESCAPE
+                ):
                     pygame.quit()
                     sys.exit()
                 elif event.type == MOUSEBUTTONUP:
@@ -153,7 +185,10 @@ class GmGame():
     def drawToken(token, row, col):
         if token != None:
             spaceRect = pygame.Rect(0, 0, GmGame.SPACESIZE, GmGame.SPACESIZE)
-            spaceRect.topleft = (GmGame.XMARGIN + (col * GmGame.SPACESIZE), GmGame.YMARGIN + (row * GmGame.SPACESIZE))
+            spaceRect.topleft = (
+                GmGame.XMARGIN + (col * GmGame.SPACESIZE),
+                GmGame.YMARGIN + (row * GmGame.SPACESIZE),
+            )
             if token == GmGame.WHITE:
                 DISPLAYSURF.blit(WHITETOKENIMG, spaceRect)
             elif token == GmGame.BLACK:
@@ -170,14 +205,18 @@ class GmGame():
         for row in range(GmGameRules.BOARDHEIGHT):
             for col in range(GmGameRules.BOARDWIDTH):
                 spaceRect.topleft = (
-                GmGame.XMARGIN + (col * GmGame.SPACESIZE), GmGame.YMARGIN + (row * GmGame.SPACESIZE))
+                    GmGame.XMARGIN + (col * GmGame.SPACESIZE),
+                    GmGame.YMARGIN + (row * GmGame.SPACESIZE),
+                )
                 DISPLAYSURF.blit(BOARDIMG, spaceRect)
 
         # draw tokens
         for row in range(GmGameRules.BOARDHEIGHT):
             for col in range(GmGameRules.BOARDWIDTH):
                 spaceRect.topleft = (
-                GmGame.XMARGIN + (col * GmGame.SPACESIZE), GmGame.YMARGIN + (row * GmGame.SPACESIZE))
+                    GmGame.XMARGIN + (col * GmGame.SPACESIZE),
+                    GmGame.YMARGIN + (row * GmGame.SPACESIZE),
+                )
                 if board[row][col] == GmGame.WHITE:
                     DISPLAYSURF.blit(WHITETOKENIMG, spaceRect)
                 elif board[row][col] == GmGame.BLACK:
@@ -198,7 +237,9 @@ class GmGame():
             GmGame.drawToken(token2, -1, col)
 
     def getNewBoard():
-        return np.zeros((GmGameRules.BOARDWIDTH, GmGameRules.BOARDHEIGHT), dtype=np.int8)
+        return np.zeros(
+            (GmGameRules.BOARDWIDTH, GmGameRules.BOARDHEIGHT), dtype=np.int8
+        )
 
     def isBoardFull(board):
         # Returns True if there are no empty spaces anywhere on the board.

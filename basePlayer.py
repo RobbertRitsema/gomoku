@@ -31,7 +31,7 @@ class basePlayer:
         3) the available moves you can play (this is a special service we provide ;-) )
         4) the maximum time until the agent is required to make a move in milliseconds [diverging from this will lead to disqualification].
         """
-        moves = GmUtils.getValidMoves(state[0])
+        moves = GmUtils.getValidMoves(state[0], state[1])
         return random.choice(moves)
 
     def id(self) -> str:
