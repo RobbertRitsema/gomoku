@@ -64,22 +64,22 @@ class GmGame():
         DISPLAYSURF = pygame.display.set_mode((GmGame.WINDOWWIDTH, GmGame.WINDOWHEIGHT))
         pygame.display.set_caption('Gomoku')
 
-        WHITETOKENIMG = pygame.image.load('5row_white_smaller.png')
+        WHITETOKENIMG = pygame.image.load('assets/5row_white_smaller.png')
         WHITETOKENIMG = pygame.transform.smoothscale(WHITETOKENIMG, (GmGame.SPACESIZE, GmGame.SPACESIZE))
-        BLACKTOKENIMG = pygame.image.load('5row_black_smaller.png')
+        BLACKTOKENIMG = pygame.image.load('assets/5row_black_smaller.png')
         BLACKTOKENIMG = pygame.transform.smoothscale(BLACKTOKENIMG, (GmGame.SPACESIZE, GmGame.SPACESIZE))
-        MARKERIMG = pygame.image.load('marker.png')
+        MARKERIMG = pygame.image.load('assets/marker.png')
         MARKERIMG = pygame.transform.smoothscale(MARKERIMG, (GmGame.SPACESIZE, GmGame.SPACESIZE))
-        BOARDIMG = pygame.image.load('gomoku_board.png')
+        BOARDIMG = pygame.image.load('assets/gomoku_board.png')
         BOARDIMG = pygame.transform.smoothscale(BOARDIMG, (GmGame.SPACESIZE, GmGame.SPACESIZE))
 
-        HUMANWINNERIMG = pygame.image.load('5row_blackwinner.png')
-        COMPUTERWINNERIMG = pygame.image.load('5row_whitewinner.png')
+        HUMANWINNERIMG = pygame.image.load('assets/5row_blackwinner.png')
+        COMPUTERWINNERIMG = pygame.image.load('assets/5row_whitewinner.png')
         # make the winner impage small, such that we can cramp it in the topleft
         HUMANWINNERIMG = pygame.transform.smoothscale(HUMANWINNERIMG, (5 * GmGame.SPACESIZE, 2 * GmGame.SPACESIZE))
         COMPUTERWINNERIMG = pygame.transform.smoothscale(COMPUTERWINNERIMG,
                                                          (5 * GmGame.SPACESIZE, 2 * GmGame.SPACESIZE))
-        TIEWINNERIMG = pygame.image.load('5row_tie.png')
+        TIEWINNERIMG = pygame.image.load('assets/5row_tie.png')
         WINNERRECT = HUMANWINNERIMG.get_rect()
         # WINNERRECT.center = (int(WINDOWWIDTH / 2), int(WINDOWHEIGHT / 2))
         WINNERRECT.left = 0

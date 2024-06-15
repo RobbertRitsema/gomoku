@@ -1,6 +1,3 @@
-import random
-
-import gomoku
 from gomoku import GameState, Move
 from super_ai.MCTS import MCTS
 
@@ -16,7 +13,6 @@ class super_ai:
         """Constructor for the player."""
         self.black = black_
 
-
     def new_game(self, black_: bool):
         """At the start of each new game you will be notified by the competition.
         this method has a boolean parameter that informs your agent whether you
@@ -24,7 +20,9 @@ class super_ai:
         """
         self.black = black_
 
-    def move(self, state: GameState, last_move: Move, max_time_to_move: int = 1000) -> Move:
+    def move(
+        self, state: GameState, last_move: Move, max_time_to_move: int = 1000
+    ) -> Move:
         """This is the most important method: the agent will get:
         1) the current state of the game
         2) the last move by the opponent

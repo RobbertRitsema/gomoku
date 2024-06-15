@@ -14,7 +14,6 @@ class gomoku_ai_marius1_webclient():
         self.black = black_
 
     def move(self, gamestate, last_move, max_time_to_move=1000):
-        
         max_webaccess_plus_reply_time_ms = 600 #.. I hope the ping will nog exceed 0.6s ..
         
         # So my server has less time because of the send request en receive response 

@@ -33,7 +33,9 @@ class MCTS:
             reward = node.rollout()
             node.backpropagate(reward)
 
-            elapsed_time = (time.time() - start_time) * 1000  # calculate elapsed time in milliseconds
+            elapsed_time = (
+                time.time() - start_time
+            ) * 1000  # calculate elapsed time in milliseconds
             if elapsed_time > max_time_to_move:
                 break  # if elapsed time exceeds max_time_to_move, break the loop
 
@@ -57,14 +59,17 @@ class MCTS:
     def expand(self):
         move = self._untried_moves.pop()
         next_state = gomoku.move(deepcopy(self.state), move)
+        if next_state is None:
+            return
+
         child_node = MCTS(next_state, black=self._black, parent=self, move=move)
 
         self.children.append(child_node)
         return child_node
 
     def backpropagate(self, result):
-        self._number_of_visits += 1.
-        self._results[result] += 1.
+        self._number_of_visits += 1
+        self._results[result] += 1
         if self.parent:
             self.parent.backpropagate(result)
 
@@ -74,7 +79,9 @@ class MCTS:
             q_value = child.win_lose_ratio()
             visits = child.number_of_visits()
             parent_visits = self.number_of_visits()
-            uct_value = (q_value / visits) + c_param * np.sqrt((2 * np.log(parent_visits) / visits))
+            uct_value = (q_value / visits) + c_param * np.sqrt(
+                (2 * np.log(parent_visits) / visits)
+            )
             child.uct_value = uct_value
 
             choices_weights.append(uct_value)

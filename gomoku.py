@@ -7,7 +7,7 @@ import numpy as np
 
 # Simple Data Types to define the game with
 Board = np.array  # two-dimensional (typically 19 by 19)
-GameState = Tuple[Board, int]  # The board plus the ply number. 
+GameState = Tuple[Board, int]  # The board plus the ply number.
 # For example, ply==1 means: the first move on the current board still needs to be done.
 # Player "black" alias "X" alias value 1 is allowed to make the first move.
 
@@ -35,7 +35,7 @@ def valid_moves(state: GameState) -> List[Move]:
     """
     board = state[0]
     ply = state[1]
-    if (ply == 1):
+    if ply == 1:
         middle = np.array(np.shape(board)) // 2
         return [tuple(middle)]
     # elif(ply == 3):
@@ -56,7 +56,7 @@ def is_game_over(state: GameState) -> bool:
     :return: a boolean indicating whether the game is over
     """
     if len(valid_moves(state)) == 0:
-       return True
+        return True
 
     board = state[0]
     bsize = np.shape(board)[0]
@@ -64,26 +64,30 @@ def is_game_over(state: GameState) -> bool:
     # Check columns for win
     for col in board.T:
         for i in range(bsize - 4):
-            if len(set(col[i:i+5])) == 1 and col[i] != 0:  # Check if all elements are the same and non-zero
+            if (
+                len(set(col[i : i + 5])) == 1 and col[i] != 0
+            ):  # Check if all elements are the same and non-zero
                 return True
 
     # Check rows for win
     for row in board:
         for i in range(bsize - 4):
-            if len(set(row[i:i+5])) == 1 and row[i] != 0:  # Check if all elements are the same and non-zero
+            if (
+                len(set(row[i : i + 5])) == 1 and row[i] != 0
+            ):  # Check if all elements are the same and non-zero
                 return True
 
     # Check diagonals for win
-    diags = [board[::-1,:].diagonal(i) for i in range(-bsize+1,bsize)]
-    diags.extend(board.diagonal(i) for i in range(bsize-1,-bsize,-1))
+    diags = [board[::-1, :].diagonal(i) for i in range(-bsize + 1, bsize)]
+    diags.extend(board.diagonal(i) for i in range(bsize - 1, -bsize, -1))
     for diag in diags:
         for i in range(len(diag) - 4):
-            if len(set(diag[i:i+5])) == 1 and diag[i] != 0:  # Check if all elements are the same and non-zero
+            if (
+                len(set(diag[i : i + 5])) == 1 and diag[i] != 0
+            ):  # Check if all elements are the same and non-zero
                 return True
 
     return False
-
-
 
 
 def check_win(board: Board, last_move: Move) -> bool:
@@ -191,11 +195,15 @@ def move(state: GameState, next_move: Move) -> Optional[GameState]:
     ply = state[1]
     colour = 2 if ply % 2 else 1
     if board[next_move[0]][next_move[1]] == 0:
-        if (ply in [1, 3]):  # Optimisation for the first moves (where the rules for which moves are valid differ)
+        if (
+            ply in [1, 3]
+        ):  # Optimisation for the first moves (where the rules for which moves are valid differ)
             valids = valid_moves(state)
-            if (next_move not in valids):
+            if next_move not in valids:
                 return None
-        board[next_move[0]][next_move[1]] = colour  # for ply>3 it is always allowed to place a stone as long as the square is empty
+        board[next_move[0]][next_move[1]] = (
+            colour  # for ply>3 it is always allowed to place a stone as long as the square is empty
+        )
         return (board, ply + 1)
     else:
         return None
@@ -209,11 +217,11 @@ def pretty_board(board: Board):
     for row in board:
         for val in row:
             if val == 0:
-                print('- ', end='')
+                print("- ", end="")
             elif val == 1:
-                print('x ', end='')
+                print("x ", end="")
             else:
-                print('o ', end='')
+                print("o ", end="")
         print()
 
 
