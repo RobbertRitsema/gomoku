@@ -26,18 +26,16 @@ class MCTS:
         """
         max_time_to_move: the maximum time until the agent is required to make a move in milliseconds
         """
-        max_time_to_move = 10000
-        start_time = time.time()  # record the start time
+        max_time_to_move = 3000
+        start_time = time.time()
         while True:
             node = self.add_node_to_tree()
             reward = node.rollout()
             node.backpropagate(reward)
 
-            elapsed_time = (
-                time.time() - start_time
-            ) * 1000  # calculate elapsed time in milliseconds
+            elapsed_time = (time.time() - start_time) * 1000
             if elapsed_time > max_time_to_move:
-                break  # if elapsed time exceeds max_time_to_move, break the loop
+                break
 
         best_child = self.best_child()
         return best_child
@@ -96,11 +94,9 @@ class MCTS:
 
         while not gomoku.is_game_over(current_rollout_state):
             possible_moves = gomoku.valid_moves(current_rollout_state)
-
             action = possible_moves[np.random.randint(len(possible_moves))]
             current_rollout_state = gomoku.move(current_rollout_state, action)
 
-        # TODO: should this check which player plays?
         result = gomoku.check_win(current_rollout_state[0], action)
         if result:
             return 1

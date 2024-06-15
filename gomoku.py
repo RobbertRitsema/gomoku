@@ -91,7 +91,7 @@ def is_game_over(state: GameState) -> bool:
 
 
 def check_win(board: Board, last_move: Move) -> bool:
-    if last_move == None or last_move == ():
+    if last_move is None or last_move == ():
         return False
 
     """This method checks whether the last move played wins the game.
