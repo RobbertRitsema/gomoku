@@ -23,11 +23,10 @@ class MCTS:
         self._black = black
         self.uct_value = None
 
-    def best_move(self, max_time_to_move: int = 10000):
+    def best_move(self, max_time_to_move: int = 1000):
         """
         max_time_to_move: the maximum time until the agent is required to make a move in milliseconds
         """
-        max_time_to_move = 3000
         start_time = time.time()
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
