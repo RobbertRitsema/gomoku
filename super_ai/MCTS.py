@@ -37,37 +37,42 @@ class MCTS:
             if elapsed_time > max_time_to_move:
                 break
 
-        best_child = self.best_child()
-        return best_child
+        bestNode = self.children[0]
+        for node in self.children:
+            qn_ratio = node.win_lose_ratio() / node.number_of_visits()
+            if qn_ratio > bestNode.win_lose_ratio() / bestNode.number_of_visits():
+                bestNode = node
+        return bestNode
 
     def add_node_to_tree(self):
         """
         if the current node in the tree is not a terminal node, it will expand the tree
         """
-        current_node = self
+        if gomoku.is_game_over(self.state):
+            return self
 
-        while not gomoku.is_game_over(current_node.state):
-            if current_node.is_fully_expanded():
-                current_node = current_node.best_child()
-            else:
-                return current_node.expand()
+        if not self.is_fully_expanded():
+            move = self._untried_moves.pop()
+            next_state = gomoku.move(deepcopy(self.state), move)
+            if next_state is None:
+                return
 
-        return current_node
+            child_node = MCTS(next_state, black=self._black, parent=self, move=move)
 
-    def expand(self):
-        move = self._untried_moves.pop()
-        next_state = gomoku.move(deepcopy(self.state), move)
-        if next_state is None:
-            return
+            self.children.append(child_node)
+            return child_node
 
-        child_node = MCTS(next_state, black=self._black, parent=self, move=move)
-
-        self.children.append(child_node)
-        return child_node
+        return self.best_child()
 
     def backpropagate(self, result):
         self._number_of_visits += 1
-        self._results[result] += 1
+        opponent_at_move = self.state[1] % 2 == self._black
+        # TODO: I don't think this works
+        if opponent_at_move:
+            self._results[result] -= 1
+        else:
+            self._results[result] += 1
+
         if self.parent:
             self.parent.backpropagate(result)
 
@@ -84,15 +89,14 @@ class MCTS:
 
             choices_weights.append(uct_value)
 
-        best_child = self.children[np.argmax(choices_weights)]
-
-        return best_child
+        return self.children[np.argmax(choices_weights)]
 
     def rollout(self):
         current_rollout_state = deepcopy(self.state)
         action = self.move
 
         while not gomoku.is_game_over(current_rollout_state):
+            # TODO: get move not from valid_moves
             possible_moves = gomoku.valid_moves(current_rollout_state)
             action = possible_moves[np.random.randint(len(possible_moves))]
             current_rollout_state = gomoku.move(current_rollout_state, action)
