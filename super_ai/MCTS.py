@@ -1,6 +1,7 @@
+import copy
 import time
 from collections import defaultdict
-from copy import deepcopy
+import concurrent.futures
 
 import numpy as np
 
@@ -28,14 +29,17 @@ class MCTS:
         """
         max_time_to_move = 3000
         start_time = time.time()
-        while True:
-            node = self.add_node_to_tree()
-            reward = node.rollout()
-            node.backpropagate(reward)
 
-            elapsed_time = (time.time() - start_time) * 1000
-            if elapsed_time > max_time_to_move:
-                break
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            while True:
+                future = executor.submit(self.add_node_to_tree)
+                node = future.result()
+                reward = node.rollout()
+                node.backpropagate(reward)
+
+                elapsed_time = (time.time() - start_time) * 1000
+                if elapsed_time > max_time_to_move:
+                    break
 
         bestNode = self.children[0]
         for node in self.children:
@@ -53,7 +57,7 @@ class MCTS:
 
         if not self.is_fully_expanded():
             move = self._untried_moves.pop()
-            next_state = gomoku.move(deepcopy(self.state), move)
+            next_state = gomoku.move(copy.deepcopy(self.state), move)
             if next_state is None:
                 return
 
@@ -92,11 +96,10 @@ class MCTS:
         return self.children[np.argmax(choices_weights)]
 
     def rollout(self):
-        current_rollout_state = deepcopy(self.state)
+        current_rollout_state = copy.deepcopy(self.state)
         action = self.move
 
         while not gomoku.is_game_over(current_rollout_state):
-            # TODO: get move not from valid_moves
             possible_moves = gomoku.valid_moves(current_rollout_state)
             action = possible_moves[np.random.randint(len(possible_moves))]
             current_rollout_state = gomoku.move(current_rollout_state, action)
@@ -117,3 +120,4 @@ class MCTS:
 
     def number_of_visits(self):
         return self._number_of_visits
+
