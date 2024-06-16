@@ -195,12 +195,6 @@ def move(state: GameState, next_move: Move) -> Optional[GameState]:
     ply = state[1]
     colour = 2 if ply % 2 else 1
     if board[next_move[0]][next_move[1]] == 0:
-        if (
-            ply in [1, 3]
-        ):  # Optimisation for the first moves (where the rules for which moves are valid differ)
-            valids = valid_moves(state)
-            if next_move not in valids:
-                return None
         board[next_move[0]][next_move[1]] = (
             colour  # for ply>3 it is always allowed to place a stone as long as the square is empty
         )
