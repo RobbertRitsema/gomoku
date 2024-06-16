@@ -54,8 +54,7 @@ class MCTS:
         if not self.is_fully_expanded():
             move = self._untried_moves.pop()
             next_state = gomoku.move(copy.deepcopy(self.state), move)
-            if next_state is None:
-                return
+            assert next_state is not None, "Invalid move!"
 
             child_node = MCTS(next_state, black=self._black, parent=self, move=move)
 
@@ -89,6 +88,7 @@ class MCTS:
     def _rollout(self):
         current_rollout_state = copy.deepcopy(self.state)
         action = self.move
+
 
         while current_rollout_state is not None and not gomoku.is_game_over(
             current_rollout_state
