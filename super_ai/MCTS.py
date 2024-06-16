@@ -16,13 +16,9 @@ class MCTS:
         self.move = move
         self.children = []
         self._number_of_visits = 0
-        self._results = defaultdict(int)
-        self._results[1] = 0
-        self._results[-1] = 0
         self.q = 0
         self._untried_moves = gomoku.valid_moves(self.state)
         self._black = black
-        self.uct_value = None
 
     def best_move(self, max_time_to_move: int = 1000):
         """
@@ -32,10 +28,10 @@ class MCTS:
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
             while True:
-                future = executor.submit(self.add_node_to_tree)
+                future = executor.submit(self._add_node_to_tree)
                 node = future.result()
-                reward = node.rollout()
-                node.backpropagate(reward)
+                reward = node._rollout()
+                node._backpropagate(reward)
 
                 elapsed_time = (time.time() - start_time) * 1000
                 if elapsed_time > max_time_to_move:
@@ -48,7 +44,7 @@ class MCTS:
                 bestNode = node
         return bestNode
 
-    def add_node_to_tree(self):
+    def _add_node_to_tree(self):
         """
         if the current node in the tree is not a terminal node, it will expand the tree
         """
@@ -66,16 +62,16 @@ class MCTS:
             self.children.append(child_node)
             return child_node
 
-        return self.best_child()
+        return self._best_child()
 
-    def backpropagate(self, result):
+    def _backpropagate(self, result):
         self._number_of_visits += 1
         self.q += result
 
         if self.parent:
-            self.parent.backpropagate(-result)
+            self.parent._backpropagate(result)
 
-    def best_child(self, c_param=0.2):
+    def _best_child(self, c_param=0.2):
         choices_weights = []
         for child in self.children:
             q_value = child.q
@@ -90,11 +86,13 @@ class MCTS:
 
         return self.children[np.argmax(choices_weights)]
 
-    def rollout(self):
+    def _rollout(self):
         current_rollout_state = copy.deepcopy(self.state)
         action = self.move
 
-        while not gomoku.is_game_over(current_rollout_state):
+        while current_rollout_state is not None and not gomoku.is_game_over(
+            current_rollout_state
+        ):
             possible_moves = gomoku.valid_moves(current_rollout_state)
             action = possible_moves[np.random.randint(len(possible_moves))]
             current_rollout_state = gomoku.move(current_rollout_state, action)
