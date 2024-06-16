@@ -19,6 +19,7 @@ class MCTS:
         self._results = defaultdict(int)
         self._results[1] = 0
         self._results[-1] = 0
+        self.q = 0
         self._untried_moves = gomoku.valid_moves(self.state)
         self._black = black
         self.uct_value = None
@@ -42,8 +43,8 @@ class MCTS:
 
         bestNode = self.children[0]
         for node in self.children:
-            qn_ratio = node.win_lose_ratio() / node.number_of_visits()
-            if qn_ratio > bestNode.win_lose_ratio() / bestNode.number_of_visits():
+            qn_ratio = node.q / node.number_of_visits()
+            if qn_ratio > bestNode.q / bestNode.number_of_visits():
                 bestNode = node
         return bestNode
 
@@ -69,20 +70,15 @@ class MCTS:
 
     def backpropagate(self, result):
         self._number_of_visits += 1
-        opponent_at_move = self.state[1] % 2 == self._black
-        # TODO: I don't think this works
-        if opponent_at_move:
-            self._results[result] -= 1
-        else:
-            self._results[result] += 1
+        self.q += result
 
         if self.parent:
-            self.parent.backpropagate(result)
+            self.parent.backpropagate(-result)
 
     def best_child(self, c_param=0.2):
         choices_weights = []
         for child in self.children:
-            q_value = child.win_lose_ratio()
+            q_value = child.q
             visits = child.number_of_visits()
             parent_visits = self.number_of_visits()
             uct_value = (q_value / visits) + c_param * np.sqrt(
@@ -112,11 +108,5 @@ class MCTS:
     def is_fully_expanded(self):
         return len(self._untried_moves) == 0
 
-    def win_lose_ratio(self):
-        wins = self._results[1]
-        loses = self._results[-1]
-        return wins - loses
-
     def number_of_visits(self):
         return self._number_of_visits
-
