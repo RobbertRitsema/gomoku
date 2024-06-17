@@ -1,6 +1,5 @@
 import copy
 import time
-from collections import defaultdict
 import concurrent.futures
 
 import numpy as np
@@ -26,6 +25,7 @@ class MCTS:
         """
         start_time = time.time()
 
+        # honestly this doesn't improve the performance a whole lot, but its free so why not
         with concurrent.futures.ThreadPoolExecutor() as executor:
             while True:
                 future = executor.submit(self._add_node_to_tree)
@@ -89,7 +89,6 @@ class MCTS:
         current_rollout_state = copy.deepcopy(self.state)
         action = self.move
 
-
         while current_rollout_state is not None and not gomoku.is_game_over(
             current_rollout_state
         ):
@@ -108,3 +107,10 @@ class MCTS:
 
     def number_of_visits(self):
         return self._number_of_visits
+
+    def total_child_visits(self):
+        total_visits = self._number_of_visits
+        for child in self.children:
+            total_visits += child.total_child_visits()
+
+        return total_visits

@@ -38,13 +38,6 @@ def valid_moves(state: GameState) -> List[Move]:
     if ply == 1:
         middle = np.array(np.shape(board)) // 2
         return [tuple(middle)]
-    # elif(ply == 3):
-    #     middle = np.shape(board)[0] // 2
-    #     rclist = list(range(middle - 2, middle + 3))
-    #     all_list = list(range(np.shape(board)[0]))
-    #     centre = set(itertools.product(rclist, rclist))
-    #     boardlist = set(itertools.product(all_list, all_list))
-    #     return list(boardlist-centre)
     else:
         return list(zip(*np.where(board == 0)))
 
@@ -64,17 +57,15 @@ def is_game_over(state: GameState) -> bool:
     # Check columns for win
     for col in board.T:
         for i in range(bsize - 4):
-            if (
-                len(set(col[i : i + 5])) == 1 and col[i] != 0
-            ):  # Check if all elements are the same and non-zero
+            # Check if all elements are the same and non-zero
+            if len(set(col[i : i + 5])) == 1 and col[i] != 0:
                 return True
 
     # Check rows for win
     for row in board:
         for i in range(bsize - 4):
-            if (
-                len(set(row[i : i + 5])) == 1 and row[i] != 0
-            ):  # Check if all elements are the same and non-zero
+            # Check if all elements are the same and non-zero
+            if len(set(row[i : i + 5])) == 1 and row[i] != 0:
                 return True
 
     # Check diagonals for win
@@ -82,9 +73,8 @@ def is_game_over(state: GameState) -> bool:
     diags.extend(board.diagonal(i) for i in range(bsize - 1, -bsize, -1))
     for diag in diags:
         for i in range(len(diag) - 4):
-            if (
-                len(set(diag[i : i + 5])) == 1 and diag[i] != 0
-            ):  # Check if all elements are the same and non-zero
+            # Check if all elements are the same and non-zero
+            if len(set(diag[i : i + 5])) == 1 and diag[i] != 0:
                 return True
 
     return False
@@ -195,9 +185,8 @@ def move(state: GameState, next_move: Move) -> Optional[GameState]:
     ply = state[1]
     colour = 2 if ply % 2 else 1
     if board[next_move[0]][next_move[1]] == 0:
-        board[next_move[0]][next_move[1]] = (
-            colour  # for ply>3 it is always allowed to place a stone as long as the square is empty
-        )
+        # for ply>3 it is always allowed to place a stone as long as the square is empty
+        board[next_move[0]][next_move[1]] = colour
         return (board, ply + 1)
     else:
         return None

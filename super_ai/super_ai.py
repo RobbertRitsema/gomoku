@@ -31,6 +31,7 @@ class super_ai:
         """
         root = MCTS(state, self.black)
         best_node = root.best_move(max_time_to_move)
+        print(root.number_of_visits())
         return best_node.move
 
     def id(self) -> str:
