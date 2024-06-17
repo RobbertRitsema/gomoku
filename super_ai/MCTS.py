@@ -1,6 +1,5 @@
 import copy
 import time
-import concurrent.futures
 
 import numpy as np
 
@@ -18,33 +17,31 @@ class MCTS:
         self.q = 0
         self._untried_moves = gomoku.valid_moves(self.state)
         self._black = black
+        self.qn_ratio = 0
 
-    def best_move(self, max_time_to_move: int = 1000):
+    def best_move(self, max_time_to_move: int = 1000) -> "MCTS":
         """
         max_time_to_move: the maximum time until the agent is required to make a move in milliseconds
         """
         start_time = time.time()
+        while True:
+            node = self._add_node_to_tree()
+            reward = node._rollout()
+            node._backpropagate(reward)
 
-        # honestly this doesn't improve the performance a whole lot, but its free so why not
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            while True:
-                future = executor.submit(self._add_node_to_tree)
-                node = future.result()
-                reward = node._rollout()
-                node._backpropagate(reward)
-
-                elapsed_time = (time.time() - start_time) * 1000
-                if elapsed_time > max_time_to_move:
-                    break
+            elapsed_time = (time.time() - start_time) * 1000
+            if elapsed_time > max_time_to_move:
+                break
 
         bestNode = self.children[0]
-        for node in self.children:
-            qn_ratio = node.q / node.number_of_visits()
-            if qn_ratio > bestNode.q / bestNode.number_of_visits():
-                bestNode = node
+        for child in self.children:
+            child.qn_ratio = child.q / child.number_of_visits()
+            if bestNode.qn_ratio < child.qn_ratio:
+                bestNode = child
+
         return bestNode
 
-    def _add_node_to_tree(self):
+    def _add_node_to_tree(self) -> "MCTS":
         """
         if the current node in the tree is not a terminal node, it will expand the tree
         """
@@ -56,21 +53,21 @@ class MCTS:
             next_state = gomoku.move(copy.deepcopy(self.state), move)
             assert next_state is not None, "Invalid move!"
 
-            child_node = MCTS(next_state, black=self._black, parent=self, move=move)
+            child_node = MCTS(next_state, black=not self._black, parent=self, move=move)
 
             self.children.append(child_node)
             return child_node
 
         return self._best_child()
 
-    def _backpropagate(self, result):
+    def _backpropagate(self, reward: int) -> None:
         self._number_of_visits += 1
-        self.q += result
+        self.q += reward
 
         if self.parent:
-            self.parent._backpropagate(result)
+            self.parent._backpropagate(reward)
 
-    def _best_child(self, c_param=0.2):
+    def _best_child(self, c_param=0.2) -> "MCTS":
         choices_weights = []
         for child in self.children:
             q_value = child.q
@@ -85,7 +82,7 @@ class MCTS:
 
         return self.children[np.argmax(choices_weights)]
 
-    def _rollout(self):
+    def _rollout(self) -> int:
         current_rollout_state = copy.deepcopy(self.state)
         action = self.move
 
@@ -98,17 +95,21 @@ class MCTS:
 
         result = gomoku.check_win(current_rollout_state[0], action)
         if result:
-            return 1
+            game_result = gomoku.game_result(current_rollout_state)
+            if game_result == 1:
+                return 1 if self._black else -1
+            elif game_result == -1:
+                return -1 if self._black else 1
         else:
-            return -1
+            return 0
 
-    def is_fully_expanded(self):
+    def is_fully_expanded(self) -> bool:
         return len(self._untried_moves) == 0
 
-    def number_of_visits(self):
+    def number_of_visits(self) -> int:
         return self._number_of_visits
 
-    def total_child_visits(self):
+    def total_child_visits(self) -> int:
         total_visits = self._number_of_visits
         for child in self.children:
             total_visits += child.total_child_visits()

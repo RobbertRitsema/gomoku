@@ -235,7 +235,7 @@ class humanPlayer(basePlayer):
         return "Marius"
 
 
-# random.seed(0)  # voor reproduceerbare debugging
+random.seed(0)  # voor reproduceerbare debugging
 
 humanPlayer1 = randomPlayer()
 humanPlayer2 = randomPlayer()
