@@ -45,9 +45,6 @@ class MCTS:
         """
         if the current node in the tree is not a terminal node, it will expand the tree
         """
-        if gomoku.is_game_over(self.state):
-            return self
-
         if not self.is_fully_expanded():
             move = self._untried_moves.pop()
             next_state = gomoku.move(copy.deepcopy(self.state), move)
@@ -76,7 +73,6 @@ class MCTS:
             uct_value = (q_value / visits) + c_param * np.sqrt(
                 (2 * np.log(parent_visits) / visits)
             )
-            child.uct_value = uct_value
 
             choices_weights.append(uct_value)
 
@@ -84,24 +80,25 @@ class MCTS:
 
     def _rollout(self) -> int:
         current_rollout_state = copy.deepcopy(self.state)
+        untried_moves = copy.copy(self._untried_moves)
         action = self.move
 
-        while current_rollout_state is not None and not gomoku.is_game_over(
+        while untried_moves.__len__() != 0 and not gomoku.is_game_over(
             current_rollout_state
         ):
-            possible_moves = gomoku.valid_moves(current_rollout_state)
-            action = possible_moves[np.random.randint(len(possible_moves))]
+            action = untried_moves.pop(np.random.randint(len(untried_moves)))
             current_rollout_state = gomoku.move(current_rollout_state, action)
 
-        result = gomoku.check_win(current_rollout_state[0], action)
-        if result:
-            game_result = gomoku.game_result(current_rollout_state)
-            if game_result == 1:
-                return 1 if self._black else -1
-            elif game_result == -1:
-                return -1 if self._black else 1
-        else:
+        if current_rollout_state is None or action is None:
             return 0
+
+        if not gomoku.check_win(current_rollout_state[0], action):
+            return 0
+
+        if gomoku.game_result(current_rollout_state) == 1:
+            return 1 if self._black else -1
+        else:
+            return -1 if self._black else 1
 
     def is_fully_expanded(self) -> bool:
         return len(self._untried_moves) == 0

@@ -1,6 +1,7 @@
 # update dec 2021: pretty board displays 1 as x and 2 as o, now,
 # just like in the tutorial.
 
+from numba import jit
 from typing import Tuple, List, Optional
 
 import numpy as np
@@ -42,15 +43,8 @@ def valid_moves(state: GameState) -> List[Move]:
         return list(zip(*np.where(board == 0)))
 
 
+@jit(nopython=True)
 def is_game_over(state: GameState) -> bool:
-    """
-    A function to check whether the game is over or somebody won
-    :param board: the current state of the game
-    :return: a boolean indicating whether the game is over
-    """
-    if len(valid_moves(state)) == 0:
-        return True
-
     board = state[0]
     bsize = np.shape(board)[0]
 
@@ -58,23 +52,32 @@ def is_game_over(state: GameState) -> bool:
     for col in board.T:
         for i in range(bsize - 4):
             # Check if all elements are the same and non-zero
-            if len(set(col[i : i + 5])) == 1 and col[i] != 0:
+            if np.all(col[i : i + 5] == col[i]) and col[i] != 0:
                 return True
 
     # Check rows for win
     for row in board:
         for i in range(bsize - 4):
             # Check if all elements are the same and non-zero
-            if len(set(row[i : i + 5])) == 1 and row[i] != 0:
+            if np.all(row[i : i + 5] == row[i]) and row[i] != 0:
                 return True
 
     # Check diagonals for win
-    diags = [board[::-1, :].diagonal(i) for i in range(-bsize + 1, bsize)]
-    diags.extend(board.diagonal(i) for i in range(bsize - 1, -bsize, -1))
-    for diag in diags:
+    for d in range(-bsize + 1, bsize):
+        diag = np.array(
+            [board[::-1, :][i][i + d] for i in range(max(0, -d), min(bsize, bsize - d))]
+        )
         for i in range(len(diag) - 4):
             # Check if all elements are the same and non-zero
-            if len(set(diag[i : i + 5])) == 1 and diag[i] != 0:
+            if np.all(diag[i : i + 5] == diag[i]) and diag[i] != 0:
+                return True
+
+    for d in range(bsize - 1, -bsize, -1):
+        diag = np.array(
+            [board[i][i + d] for i in range(max(0, -d), min(bsize, bsize - d))]
+        )
+        for i in range(len(diag) - 4):
+            if np.all(diag[i : i + 5] == diag[i]) and diag[i] != 0:
                 return True
 
     return False
