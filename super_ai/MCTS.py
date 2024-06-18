@@ -33,13 +33,13 @@ class MCTS:
             if elapsed_time > max_time_to_move:
                 break
 
-        bestNode = self.children[0]
+        best_node = self.children[0]
         for child in self.children:
             child.qn_ratio = child.q / child.number_of_visits()
-            if bestNode.qn_ratio < child.qn_ratio:
-                bestNode = child
+            if best_node.qn_ratio < child.qn_ratio:
+                best_node = child
 
-        return bestNode
+        return best_node
 
     def _add_node_to_tree(self) -> "MCTS":
         """
@@ -83,8 +83,10 @@ class MCTS:
         untried_moves = copy.copy(self._untried_moves)
         action = self.move
 
-        while untried_moves.__len__() != 0 and not gomoku.is_game_over(
-            current_rollout_state
+        while (
+            current_rollout_state is not None
+            and untried_moves.__len__() != 0
+            and not gomoku.is_game_over(current_rollout_state)
         ):
             action = untried_moves.pop(np.random.randint(len(untried_moves)))
             current_rollout_state = gomoku.move(current_rollout_state, action)
